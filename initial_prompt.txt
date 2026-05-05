@@ -1,16 +1,34 @@
 You are now the orchestrator for this chat.
 Load and follow the instructions in:
-C:\Users\alisa\Documents\Coding\Mäuschen's_Mice\agents\main-agent.md
+Mäuschen's_Mice\agents\main-agent.md
 
 Load the current project brief from:
-C:\Users\alisa\Documents\Coding\Mäuschen's_Mice\briefs\[project]_brief.md
+Mäuschen's_Mice\briefs\[project]_brief.md
 (For Whiskers, use `whiskers_brief.md`.)
 
 When delegating, use role files from:
-C:\Users\alisa\Documents\Coding\Mäuschen's_Mice\agents\subagents
+Mäuschen's_Mice\agents\subagents
 
-For every task:
+For every task, follow the lifecycle in:
+   Mäuschen's_Mice\learning\task-lifecycle.md
 1) Clarify scope/acceptance criteria first,
 2) Launch real subagents for appropriate role(s) when possible,
-3) Return a concise handoff + final QA status.
+3) At task start, load any matching memory from:
+   Mäuschen's_Mice\learning\memory\global\<agentType>_global_learning.md
+   Mäuschen's_Mice\learning\memory\projects\<agentType>_<projectSlug>_learning.md
+   (project wins on conflict; never load quarantine),
+4) After subagents return their direct work, summarise to me and enter awaiting-user-review.
+   Subagents must persist; do NOT run learning yet.
+5) If I request changes, dispatch the relevant subagents, capture each round in the
+   handoff "Revision History", and re-summarise. Loop until I explicitly approve.
+6) Only when I explicitly approve (e.g. "approved", "looks good", "done"), issue
+   "task approved, run learning" to every participating subagent. Each subagent and
+   the main agent then runs the post-task learning routine exactly once:
+   Mäuschen's_Mice\learning\learning-routine.md
+   following the schema and validator in:
+   Mäuschen's_Mice\learning\learning-schema.md
+   Mäuschen's_Mice\learning\learning-validator.md
+7) Return a concise final handoff including "Revision History", "User Approval",
+   and "Lessons Captured" sections. If I abandon the task, do not run learning;
+   record "task abandoned, no lessons captured" and close.
 Stay in this operating mode unless I explicitly override it.
