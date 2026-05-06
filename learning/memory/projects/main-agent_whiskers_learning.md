@@ -56,3 +56,51 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: main-agent-whiskers-20260506-a1777b
+created: 2026-05-06
+updated: 2026-05-06
+agent_type: main-agent
+scope: project
+project_slug: whiskers
+task_type: feature
+tags: [security, gui, cli]
+trigger: File-operation hardening added non-interactive confirmation/force gates and a default `<repo>/data` boundary for `save`/`shred`.
+evidence: The GUI paths call `save_logs`/`shred_logs` without REPL input, so the hardening required GUI-side confirmations plus passing `--force` and related flags to preserve UX while keeping safe defaults.
+observed_count: 1
+lesson: When hardening file ops, ensure GUI code paths satisfy new confirmation/force gates without weakening defaults.
+do: After changing CLI confirmation or allowlist rules, identify non-REPL callers (GUI pages, startup args) and update them to pass explicit `--force`/opt-in flags only after a GUI confirmation dialog.
+dont: Add non-interactive confirmation gates without checking GUI call sites; this will silently break core buttons or force unsafe default relaxations.
+rationale: Keeps security hardening effective without regressing GUI usability.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: main-agent-whiskers-20260506-9363fb
+created: 2026-05-06
+updated: 2026-05-06
+agent_type: main-agent
+scope: project
+project_slug: whiskers
+task_type: other
+tags: [tooling, windows, powershell]
+trigger: A repo status/diff check failed due to using a Bash-style multi-command separator in a PowerShell terminal.
+evidence: The command containing `&&` produced a PowerShell parser error; switching to `;` separators succeeded and allowed reviewing the working tree diff.
+observed_count: 1
+lesson: When running multi-command shell snippets on Windows PowerShell, use ; separators (not &&) to avoid parse errors.
+do: For PowerShell sessions, chain commands with `;` (or use separate invocations) when collecting status/diff/test output.
+dont: Paste Bash-style `&&` chains into PowerShell; it can fail before running any command.
+rationale: Prevents avoidable command failures during Windows-based review and validation work.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```

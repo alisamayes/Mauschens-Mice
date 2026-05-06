@@ -80,3 +80,51 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: security-specialist-whiskers-20260506-256cd5
+created: 2026-05-06
+updated: 2026-05-06
+agent_type: security-specialist
+scope: project
+project_slug: whiskers
+task_type: bugfix
+tags: [filesystem, destructive-action, allowlist, cli, gui]
+trigger: Security hardening work identified that deleting log files via shred could target arbitrary paths.
+evidence: Updated Whiskers to enforce a default boundary under data/ for shred targets and to require explicit bypass flags for deleting outside that boundary (implemented in path_security.py and simulator/file_manager.py).
+observed_count: 1
+lesson: Enforce an allowlisted directory boundary for destructive file operations in Whiskers (default: data/) and require explicit bypass flags for anything outside it.
+do: Use a single helper to resolve-and-validate targets under <repo>/data for destructive operations (and make bypass an explicit, named flag).
+dont: Accept a raw path (directly or via GUI selection) as a shred/delete target without first proving it lies under the intended allowlisted directory.
+rationale: Prevents arbitrary file deletion if a configured path or UI input points outside the Whiskers workspace boundary.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: security-specialist-whiskers-20260506-6ab27d
+created: 2026-05-06
+updated: 2026-05-06
+agent_type: security-specialist
+scope: project
+project_slug: whiskers
+task_type: bugfix
+tags: [filesystem, safe-defaults, overwrite, cli, gui]
+trigger: Security hardening work found that save could overwrite existing destinations or write outside intended directories without an explicit opt-in.
+evidence: Updated Whiskers save to refuse overwriting by default unless --overwrite is provided, and to refuse writing outside data/ unless explicitly allowed (simulator/file_manager.py plus GUI call site adjustments).
+observed_count: 1
+lesson: Default Whiskers save behavior must refuse overwriting existing files and refuse writing outside data/ unless explicitly allowed.
+do: Make overwrite and outside-data writes opt-in via explicit flags (and add extra confirmation/force gating for the risky paths).
+dont: Use save-as style flows that silently overwrite or write to arbitrary absolute destinations without a deliberate overwrite/allow flag.
+rationale: Safe defaults reduce the blast radius of operator error and limit abuse through path injection or accidental selection.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
