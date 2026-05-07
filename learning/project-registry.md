@@ -12,6 +12,7 @@ Project display names drift, get reorganised, or differ between machines. The le
 | --- | --- | --- | --- |
 | `whiskers` | Whiskers | `briefs/whiskers_brief.md` | Cybersecurity log analysis toolkit, Python + ML + PyQt. |
 | `health-app` | Mindful Mäuschen (Health App) | `briefs/health_app_brief.md` | Python + PyQt6 desktop health tracker. |
+| `dragonflight` | Dragonflight | `briefs/dragonflight_brief.md` | Single-player turn-based dragon raiding strategy game, Python + Pygame. Engages Coder (Game Systems) and Game Map Designer roles. |
 | `mauschens-mice` | Mäuschen's Mice | (this repo) | The agent operating manual itself. Lessons here are about agent process, not application code. |
 | `global` | (cross-project) | (none) | Reserved slug. Used only for `<agentType>_global_learning.md` files. |
 
