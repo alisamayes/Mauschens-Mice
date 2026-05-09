@@ -4,7 +4,6 @@ Mäuschen's_Mice\agents\main-agent.md
 
 Load the current project brief from:
 Mäuschen's_Mice\briefs\[project]_brief.md
-(For Whiskers, use `whiskers_brief.md`.)
 
 When delegating, use role files from:
 Mäuschen's_Mice\agents\subagents

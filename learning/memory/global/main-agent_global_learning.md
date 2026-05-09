@@ -33,3 +33,24 @@ status: active
 superseded_by: null
 review_after: null
 
+---
+id: main-agent-global-20260508-bf704e
+created: 2026-05-08
+updated: 2026-05-08
+agent_type: main-agent
+scope: global
+project_slug: global
+task_type: other
+tags: [orchestration, subagent-interruption, recovery, partial-state]
+trigger: Slice 1 Wave 3 (Dragonflight, GUI Developer round 0) was interrupted mid-task; on resumption the orchestrator initially assumed no files had landed yet, but a Glob+Read sweep revealed `render.py`, `__main__.py`, `dragonflight.py`, and `tests/test_render.py` had already been written before the interruption.
+evidence: Recovery from the interruption took ~5–10 tool calls of Glob+Read inspection before the orchestrator could confidently re-dispatch; the alternative — re-running the subagent from scratch — would have produced duplicated or conflicting writes.
+observed_count: 1
+lesson: When a subagent task is interrupted mid-flight, reconstruct partial workspace state via Glob plus Read on the touched paths before resuming or re-dispatching; do not assume the subagent's prior turn had no side effects.
+do: As the first action after detecting an interrupted subagent, Glob the directories named in the subagent's brief and Read every file that returned, comparing against the known pre-task state to enumerate what landed; only then decide between resume (use the existing files) and re-dispatch (start over with explicit "ignore prior partial work" instructions).
+dont: Resume an interrupted subagent without reconstructing partial state, or re-dispatch it without explicit instructions about prior writes; both options produce duplicated or conflicting writes that surface as merge conflicts in the next handoff.
+rationale: Subagent tools have side effects on the filesystem that survive the interruption; treating an interrupted subagent as a no-op corrupts the workspace and forces a more expensive recovery later.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+
