@@ -56,3 +56,75 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: gui-developer-dragonflight-20260511-b6c1a2
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: gui-developer
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [pygame, gui, screens, architecture]
+trigger: Adding a Settings/Map Creator flow required finding existing screen/scene abstractions.
+evidence: Exploration showed `src/dragonflight/movement_playtest.py` is a single monolithic Pygame loop with direct event handling and redraw, and the codebase contains no existing `screen/scene/ui` modules to extend.
+observed_count: 1
+lesson: When adding new UI flows in Dragonflight, implement a minimal in-loop screen router rather than searching for or inventing a heavy scene framework.
+do: Add a small `mode`/screen object that owns `handle_event` + `draw`, and dispatch from the existing `pygame.event.get()` loop in `movement_playtest.py`.
+dont: Bolt new UI pages directly into the playtest loop without a mode boundary; it will quickly tangle input routing and redraw logic.
+rationale: The current app is immediate-mode and loop-centric; a tiny router matches existing style and keeps new flows testable and separable.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: gui-developer-dragonflight-20260511-8fd3e1
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: gui-developer
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [pygame, gui, layout, hit-testing]
+trigger: The requested Settings button must sit in new bottom chrome while preserving correct map hit-testing.
+evidence: `movement_playtest.py` already reserves `TIME_BAR_HEIGHT` and adjusts `origin` by it plus ignores clicks in that region; adding bottom chrome must also shrink the map canvas and keep hit-testing aligned.
+observed_count: 1
+lesson: Any new UI chrome in Dragonflight must reserve pixels in layout and in click filtering to keep map hit-testing consistent.
+do: Introduce `BOTTOM_BAR_HEIGHT` and compute map canvas height as `client_h - TIME_BAR_HEIGHT - BOTTOM_BAR_HEIGHT`, adjusting draw origin consistently with the reserved regions.
+dont: Draw a bottom bar “on top” of the map without changing the layout inputs to `layout_map_on_canvas` or filtering clicks; it will cause misaligned painting/movement picks.
+rationale: Rendering and hit-testing share the same origin/viewport math; inconsistent chrome handling breaks interaction correctness.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: gui-developer-dragonflight-20260511-52aa7c
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: gui-developer
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [editor, terrain, consistency, gui]
+trigger: The Map Creator toolbar must list “each tile type currently in game” with recognizable visuals.
+evidence: Tile identity is centralized in `src/dragonflight/terrain.py::Terrain`, and the canonical palette is already in `src/dragonflight/render.py::TERRAIN_COLORS`.
+observed_count: 1
+lesson: Drive editor toolbars from `Terrain` and `TERRAIN_COLORS` to keep tile lists and colors consistent with the runtime.
+do: Enumerate `Terrain` for tool buttons and use `render.TERRAIN_COLORS` for swatches in the Map Creator UI.
+dont: Hardcode terrain names or colors inside the editor screen; it will drift from runtime rules and palettes.
+rationale: Single-source-of-truth enums and palettes prevent silent mismatches between editor output and runtime rendering.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```

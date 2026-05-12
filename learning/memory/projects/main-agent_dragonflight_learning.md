@@ -80,3 +80,27 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: main-agent-dragonflight-20260511-b7676f
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: main-agent
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [security, filesystem, maps, pygame]
+trigger: Adding Map Loader and Map Creator Save introduced new user-driven file I/O in the interactive Pygame client.
+evidence: The implemented loader opens a file picker and then enforces an `assets/` containment check (`resolve()` + `relative_to()`) before calling `map_loader.load_map`, preventing path traversal or loading arbitrary files.
+observed_count: 1
+lesson: Constrain any user-selected map file paths to the `assets/` directory via canonical path checks before reading or writing.
+do: Resolve both `assets_dir` and the selected path and require `selected.relative_to(assets_dir)` to succeed before calling any load/save routine; surface a clear UI error if it fails.
+dont: Accept raw filenames/paths from UI (or assume file dialogs can’t escape) and pass them straight into file I/O without a containment check.
+rationale: Native dialogs and text inputs can still yield paths outside the intended sandbox; canonical containment checks keep map I/O predictable and reduce security risk.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```

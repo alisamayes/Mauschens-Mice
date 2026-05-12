@@ -104,3 +104,75 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: security-specialist-dragonflight-20260511-assetpt
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: security-specialist
+scope: project
+project_slug: dragonflight
+task_type: review
+tags: [filesystem, path-traversal, assets, save]
+trigger: This task added a “Save map to assets/” requirement, but the repo has no existing safe-write helper and current code only demonstrates safe asset path reading via `Path(__file__).resolve()` rooted joins.
+evidence: Repo pattern: `src/dragonflight/__main__.py` resolves project root from `__file__` and joins `assets/example_hexmap.json`; `src/dragonflight/map_loader.py` reads arbitrary paths passed in, so the new Save sink must enforce containment explicitly rather than trusting caller input.
+observed_count: 1
+lesson: Enforce `assets/` confinement by resolving paths and rejecting any save target that is not `relative_to(assets_root)`.
+do: Compute a canonical `assets_root` from `__file__`, build `target = assets_root / filename`, then compare `target.resolve()` against `assets_root.resolve()` using `relative_to`; reject on failure before any file operation.
+dont: Accept user-provided paths (absolute, `..`, or separator-containing strings) or rely on `joinpath` alone; without canonical containment checks, traversal or symlink escape can write outside `assets/`.
+rationale: Canonicalization + `relative_to` is a simple, robust barrier against traversal and “write anywhere” vulnerabilities.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: security-specialist-dragonflight-20260511-fnameok
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: security-specialist
+scope: project
+project_slug: dragonflight
+task_type: review
+tags: [filesystem, input-validation, windows, save]
+trigger: Save requires a user-chosen map filename; filenames are an input channel distinct from JSON schema validation and need their own allowlist.
+evidence: This review identified the need to prevent traversal and OS quirks (notably Windows reserved names and trailing dot/space behavior) while saving into `assets/`; there is no repo-wide filename validation helper today.
+observed_count: 1
+lesson: Validate map filenames with a strict allowlist (chars, length, extension) and reject Windows-reserved device names.
+do: Require a simple filename pattern like `^[A-Za-z0-9][A-Za-z0-9._-]{0,63}\\.json$`, reject any separators, reject trailing dot/space, and block `CON/PRN/AUX/NUL/COM1…/LPT1…` (case-insensitive).
+dont: “Sanitize” arbitrary user strings into filenames or accept paths/Unicode confusables by default; silent rewriting makes it hard to reason about where the file went and can hide abuse.
+rationale: A strict allowlist removes ambiguity across OSes and closes multiple classes of path and device-name abuses with minimal complexity.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: security-specialist-dragonflight-20260511-atomicw
+created: 2026-05-11
+updated: 2026-05-11
+agent_type: security-specialist
+scope: project
+project_slug: dragonflight
+task_type: review
+tags: [filesystem, atomic-write, overwrite, integrity]
+trigger: Save can overwrite an existing map JSON in `assets/`, creating integrity risk (partial writes) and UX risk (silent destructive overwrite).
+evidence: This task’s review recommended explicit overwrite confirmation and atomic replace because the repo currently only reads the bundled asset and does not yet have a safe write pattern to prevent corruption on crash/interruption.
+observed_count: 1
+lesson: Perform map saves as atomic writes and require explicit overwrite confirmation when the target exists.
+do: If target exists, require a deliberate overwrite confirmation; write to a temp sibling in `assets/` and then `replace()` to the final filename so failures don’t corrupt the existing file.
+dont: Write directly into the final path without confirmation or atomicity; a crash mid-write can leave a truncated JSON and destroy the prior good map.
+rationale: Atomic replace preserves last-known-good data and makes overwrite behavior predictable and auditable.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
