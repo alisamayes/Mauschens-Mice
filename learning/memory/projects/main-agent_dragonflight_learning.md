@@ -104,3 +104,51 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: main-agent-dragonflight-20260512-f1c8a3
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: main-agent
+scope: project
+project_slug: dragonflight
+task_type: other
+tags: [lifecycle, user-approval, learning]
+trigger: The user finished reviewing settlement work and asked to close the task and trigger learning in the next message.
+evidence: After "Ok this looks fine" on the rule clarifications, the user wrote "lets close it and trigger learning before the next task", explicitly requesting the post-task learning routine.
+observed_count: 2
+lesson: Treat a clear "close and run learning" instruction as the user-approved transition when the same thread already affirmed the deliverable.
+do: When the user asks to close the task and trigger learning after positive review, enter `user-approved`, issue "task approved, run learning", and run `learning-routine.md` without demanding an extra ritual phrase.
+dont: Refuse learning solely because the final message omits the literal word "approved" when the user explicitly commanded learning closure.
+rationale: Explicit learning commands disambiguate intent and avoid unnecessary approval loops.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: main-agent-dragonflight-20260512-6e4a91
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: main-agent
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [orchestration, pygame, layout, dragonflight]
+trigger: After tile inspector and draggable splitters shipped, the user reported the map and left dragon panel clipping and overlapping until a layout revision fixed it.
+evidence: Revision History round 2 described a bug where `layout_map_on_canvas` used map-canvas width but the draw origin omitted the left column offset, so the grid drew under the dragon panel; the fix shifted origin by `dragon_panel_w` and clipped draws to `map_viewport`.
+observed_count: 1
+lesson: When briefing Dragonflight Pygame layout overlap bugs, require an explicit audit of map origin against panel widths, `set_clip` on the map viewport, and pointer routing that matches the same rects.
+do: In handoffs to Coder (Game Systems), list checks: `origin_x` includes `dragon_panel_w`, `map_canvas_w = client_w - left - right`, render and hit-testing use `_map_viewport_rect`, splitters consume drags before hex pick.
+dont: Treat "panels look wrong" as purely cosmetic CSS-style tuning without verifying coordinate spaces (canvas-local vs surface-local).
+rationale: Column layouts mix two coordinate conventions; a short checklist prevents regressions that pass tests but fail visually.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```

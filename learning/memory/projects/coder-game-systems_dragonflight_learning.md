@@ -132,3 +132,147 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-a8f31c
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [settlements, healing, phase-rules, user-correction]
+trigger: First-pass settlement phase logic healed only cities; the user revised the requirement to heal all settlement types the same way.
+evidence: Revision History records the user correction that all settlements should heal (not just cities); `on_settlement_phase_end` now applies `SETTLEMENT_HEAL_PERCENT_OF_MAX` whenever `hp < max_hp` for every type.
+observed_count: 1
+lesson: Apply one shared damaged-settlement heal branch for every settlement type unless the brief explicitly type-gates healing.
+do: Implement heal-vs-growth using `hp < max_hp` without branching on `SettlementType` unless the design doc names different recovery per type.
+dont: Encode a heal rule for only one archetype when the spec or brief says "settlements" generically.
+rationale: Type-specific heals without an explicit brief invite rework when designers mean global settlement rules.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-62e9b0
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [settlements, growth, hp, user-correction]
+trigger: The user added a growth rule to raise max HP each turn while keeping undamaged settlements logically "full".
+evidence: User asked to increase `max_hp` by 50 on growth ticks; implementation adds `SETTLEMENT_GROWTH_MAX_HP_BONUS` to both `max_hp` and `hp` on the undamaged growth path and surfaces `max_hp_delta` on `SettlementPhaseOutcome`.
+observed_count: 1
+lesson: When undamaged settlement growth increases max_hp, increase current hp by the same increment so the entity stays at full health.
+do: On growth ticks that bump `max_hp`, add the same delta to `hp` when the settlement started the tick at full health; record both deltas on the phase outcome for tests and UI.
+dont: Raise `max_hp` without adjusting `hp` on a full-health settlement unless the brief explicitly wants a partial-health state after growth.
+rationale: Silent drops below max after a "growth" tick confuse phase logic that keys off `hp == max_hp`.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-4d1c7e
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [combat, settlements, retreat, raid, user-correction]
+trigger: The user needed a hard separation between losing a fight and retreating mid-combat.
+evidence: Revision History states that if the dragon retreats, settlement stats other than HP from resolved rounds must not change; `run_settlement_combat_loop` documents this and only calls `on_raid_defeat` when settlement HP reaches zero.
+observed_count: 1
+lesson: Never apply raid-defeat economy or aggression mutations when the player ends combat via retreat; reserve that bundle for terminal defeat at `hp == 0` or an explicit defeat hook.
+do: Gate `on_raid_defeat` on settlement HP depletion (or a dedicated "raid success" API), not on loop exit via `should_continue` false.
+dont: Fire eco or aggression penalties automatically whenever combat ends—tie them to the documented loss condition only.
+rationale: Mixing retreat with defeat breaks risk/reward tuning and contradicts player expectations.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-7b2e91
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [dragon, hp, api-clarity]
+trigger: The user asked for explicit current vs max HP language on the dragon as well as settlements.
+evidence: `Dragon` already had `hp` and `max_hp`; revision added a documented `current_hp` property with a clamping setter so callers can speak the same vocabulary as the design doc.
+observed_count: 1
+lesson: When the design vocabulary distinguishes current and max HP, expose a `current_hp` alias (mirroring `hp`) with a clamping setter on the dragon entity.
+do: Add `current_hp` read/write that delegates to `hp` and clamps to `[0, max_hp]`; document that combat mutates current HP, not the ceiling, unless a progression system changes `max_hp`.
+dont: Introduce a second mutable HP field; keep a single source field and treat `current_hp` as API sugar.
+rationale: Duplicate fields desynchronise; an alias keeps terminology clear without splitting state.
+confidence: medium
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-91c4ae
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [pygame, layout, map-viewport, input]
+trigger: User reported the hex map and left dragon panel overlapping and clipping after introducing left/right side panels and splitters.
+evidence: `movement_playtest` used `layout_map_on_canvas` with width `client - panels` but placed the map origin without adding `dragon_panel_w`, shifting the grid under the left column; fix added that offset, `set_clip(map_viewport)`, and splitter-aware picking.
+observed_count: 1
+lesson: When the map is laid out in a reduced-width canvas between side panels, add the left panel width to the map origin, clip rendering to the map viewport, and align mouse hit-tests with the same viewport and splitter hit zones.
+do: Set `origin = (dragon_panel_w + ox, time_bar + oy)` when `map_canvas_w = client_w - dragon_panel_w - inspector_panel_w`; call `surf.set_clip(map_viewport)` around `render_map`; gate hex clicks on viewport and ignore splitter strips during drag.
+dont: Pass panel-subtracted width into `layout_map_on_canvas` but treat the returned `(ox, oy)` as if the surface origin were `(0, 0)` for the full window.
+rationale: Layout helpers usually return coordinates in the canvas space you gave them, not absolute surface space; mixing the two draws under UI chrome.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260512-72dbe3
+created: 2026-05-12
+updated: 2026-05-12
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [ui, economy, settlement, single-source-of-truth]
+trigger: User asked to replace vague raid spoils copy with the actual gold number and to narrow the inspector column further.
+evidence: Added `raid_victory_gold_from_eco` in `settlement.py` for HUD and `apply_raid_victory_loot`; inspector shows `Raid Spoils: N` only for live settlements and sizes min width using a sample string including a wide digit run.
+observed_count: 1
+lesson: Show raid gold preview in the UI via the same helper used for victory payout, and include that string when computing minimum inspector width so labels do not clip.
+do: Export `raid_victory_gold_from_eco(eco)` next to `RAID_VICTORY_GOLD_PERCENT_OF_ECO`, call it from the inspector and from loot application, and add the longest expected preview line to font-metric width calculations.
+dont: Display percentage-only spoils text while computing loot elsewhere with a duplicated `eco * percent // 100` expression, or shrink panel mins without measuring the new label.
+rationale: One function keeps preview and payout identical; width sizing must cover the real string you render.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
