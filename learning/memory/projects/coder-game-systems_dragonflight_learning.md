@@ -276,3 +276,51 @@ status: active
 superseded_by: null
 review_after: null
 ```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260513-c7e21b
+created: 2026-05-13
+updated: 2026-05-13
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [abilities, timers, dragonflight, state]
+trigger: User correction split Greengon Vivify into a 5-hour sacrifice-to-attack window versus a +20% max HP buff that lasts until the citadel day boundary; the first implementation used one `active_ability_hours["Vivify"]` entry for the full day for both behaviors.
+evidence: Revision History round 2; `try_use_ability` now sets `active_ability_hours["Vivify sacrifice"]` for five hours while max HP delta stays in `passive_stacks["Vivify max hp bonus"]` cleared in `begin_new_turn`.
+observed_count: 1
+lesson: Give each independent duration of the same named ability its own state key instead of multiplexing one active-effect timer.
+do: Use separate `active_ability_hours` keys (or stack fields plus day hooks) when one cast applies both a short window mechanic and a day-scoped stat change.
+dont: Let one `active_effect_hours_remaining(dragon, "AbilityName")` gate two rules that intentionally expire at different boundaries.
+rationale: Single-key multiplexing hides which rule expired and forces incorrect player-facing timing.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: coder-game-systems-dragonflight-20260513-8b4d2a
+created: 2026-05-13
+updated: 2026-05-13
+agent_type: coder-game-systems
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [hud, dragonflight, stats, vivify]
+trigger: User follow-up required temporary Vivify max HP to appear only under Combat Stats while Base Stats showed the persistent ceiling.
+evidence: `_draw_dragon_panel` computes `base_max_hp` from `dragon.max_hp` minus `passive_stacks["Vivify max hp bonus"]` for the Base Stats HP line and uses full `dragon.max_hp` for Combat Stats with green when boosted.
+observed_count: 1
+lesson: When day-scoped buffs mutate `max_hp` in place, subtract the tracked bonus delta for any HUD label advertised as base or persistent max.
+do: Store the removable bonus (e.g. Vivify stack total) and render base max as `max_hp - bonus` wherever the design calls for a non-temporary ceiling.
+dont: Render the same `dragon.max_hp` in both base and combat columns when part of the pool is explicitly temporary until `begin_new_turn`.
+rationale: Players cannot tell temporary power from upgrades if both panels read the same inflated ceiling.
+confidence: high
+status: active
+superseded_by: null
+review_after: null
+```

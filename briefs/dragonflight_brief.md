@@ -31,7 +31,7 @@ Deliver the MVP of Dragonflight — a single-player, turn-based fantasy strategy
   - Primary metric is **turns survived** (Section 3).
 - Project setup and tooling:
   - `src/dragonflight/` package layout with `pyproject.toml`, `assets/` for art, `tests/` for incremental pytest coverage, dev helper scripts for venv setup.
-  - Python 3.11–3.13 (Pygame wheel coverage); Python 3.14+ explicitly avoided until Pygame supports it.
+  - Python 3.11-3.13 (Pygame wheel coverage); Python 3.14+ explicitly avoided until Pygame supports it.
 - Documentation upkeep for spec, README, and code-level docstrings as behavior changes.
 
 ## Out-of-Scope (MVP)
@@ -55,7 +55,7 @@ Deliver the MVP of Dragonflight — a single-player, turn-based fantasy strategy
 - [ ] Aggression nearby-radius defaults to **15% of map width** in hexes and is configurable at game start.
 - [ ] Map data lives in plain data files validated by reachability/spawn/bridge checks before being considered done.
 - [ ] Single-source-of-truth simulation state (e.g. `MapState`) is preserved; no rule logic leaks into rendering or UI code.
-- [ ] Pygame loop runs on Python 3.11–3.13 in a clean venv created via the repo dev scripts.
+- [ ] Pygame loop runs on Python 3.11-3.13 in a clean venv created via the repo dev scripts.
 - [ ] Documentation (spec, README, docstrings) is updated where behavior or structure changed.
 - [ ] QA report records regressions checked, defects found, and go/no-go status.
 - [ ] Handoff notes capture decisions, assumptions, and follow-up work.
@@ -68,7 +68,7 @@ Deliver the MVP of Dragonflight — a single-player, turn-based fantasy strategy
 - Keep gameplay numbers in named constants or data tables (no magic numbers in rule code).
 - Reject invalid actions at the simulation API boundary, not in render or UI code.
 - Maintain modularity, loose coupling, and clear interfaces per Section 19 of the spec.
-- Pygame compatibility: Python 3.11–3.13 only until Pygame ships wheels for newer versions.
+- Pygame compatibility: Python 3.11-3.13 only until Pygame ships wheels for newer versions.
 
 ## Risks/Assumptions
 

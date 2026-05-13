@@ -84,54 +84,6 @@ review_after: null
 ---
 
 ```yaml
-id: main-agent-dragonflight-20260511-b7676f
-created: 2026-05-11
-updated: 2026-05-11
-agent_type: main-agent
-scope: project
-project_slug: dragonflight
-task_type: feature
-tags: [security, filesystem, maps, pygame]
-trigger: Adding Map Loader and Map Creator Save introduced new user-driven file I/O in the interactive Pygame client.
-evidence: The implemented loader opens a file picker and then enforces an `assets/` containment check (`resolve()` + `relative_to()`) before calling `map_loader.load_map`, preventing path traversal or loading arbitrary files.
-observed_count: 1
-lesson: Constrain any user-selected map file paths to the `assets/` directory via canonical path checks before reading or writing.
-do: Resolve both `assets_dir` and the selected path and require `selected.relative_to(assets_dir)` to succeed before calling any load/save routine; surface a clear UI error if it fails.
-dont: Accept raw filenames/paths from UI (or assume file dialogs can’t escape) and pass them straight into file I/O without a containment check.
-rationale: Native dialogs and text inputs can still yield paths outside the intended sandbox; canonical containment checks keep map I/O predictable and reduce security risk.
-confidence: medium
-status: active
-superseded_by: null
-review_after: null
-```
-
----
-
-```yaml
-id: main-agent-dragonflight-20260512-f1c8a3
-created: 2026-05-12
-updated: 2026-05-12
-agent_type: main-agent
-scope: project
-project_slug: dragonflight
-task_type: other
-tags: [lifecycle, user-approval, learning]
-trigger: The user finished reviewing settlement work and asked to close the task and trigger learning in the next message.
-evidence: After "Ok this looks fine" on the rule clarifications, the user wrote "lets close it and trigger learning before the next task", explicitly requesting the post-task learning routine.
-observed_count: 2
-lesson: Treat a clear "close and run learning" instruction as the user-approved transition when the same thread already affirmed the deliverable.
-do: When the user asks to close the task and trigger learning after positive review, enter `user-approved`, issue "task approved, run learning", and run `learning-routine.md` without demanding an extra ritual phrase.
-dont: Refuse learning solely because the final message omits the literal word "approved" when the user explicitly commanded learning closure.
-rationale: Explicit learning commands disambiguate intent and avoid unnecessary approval loops.
-confidence: medium
-status: active
-superseded_by: null
-review_after: null
-```
-
----
-
-```yaml
 id: main-agent-dragonflight-20260512-6e4a91
 created: 2026-05-12
 updated: 2026-05-12
@@ -148,6 +100,30 @@ do: In handoffs to Coder (Game Systems), list checks: `origin_x` includes `drago
 dont: Treat "panels look wrong" as purely cosmetic CSS-style tuning without verifying coordinate spaces (canvas-local vs surface-local).
 rationale: Column layouts mix two coordinate conventions; a short checklist prevents regressions that pass tests but fail visually.
 confidence: high
+status: active
+superseded_by: null
+review_after: null
+```
+
+---
+
+```yaml
+id: main-agent-dragonflight-20260513-a3f81c
+created: 2026-05-13
+updated: 2026-05-13
+agent_type: main-agent
+scope: project
+project_slug: dragonflight
+task_type: feature
+tags: [orchestration, dragonflight, revisions, pygame]
+trigger: After the user manually verified draconic abilities, two revision rounds (panel base vs combat stats and Vivify timing) touched the same modules without re-scoping architecture.
+evidence: Revision rounds 1–2 were briefed as checklists to the same resumed implementation subagent; changes landed in `dragon_abilities.py` and `movement_playtest.py` and the user approved without a third round.
+observed_count: 1
+lesson: Keep follow-up UX and rule tweaks for one Dragonflight feature on a single resumed implementation thread when one role owns both the Pygame panel and the simulation hooks.
+do: After playable verification, send numbered acceptance tweaks in one dispatch to the subagent that already owns `movement_playtest.py` and `dragon_abilities.py` for that feature.
+dont: Cold-start a new implementation thread for each micro-revision when file ownership and context are unchanged.
+rationale: Repeated cold starts re-pay exploration cost and increase merge drift on hot files.
+confidence: medium
 status: active
 superseded_by: null
 review_after: null

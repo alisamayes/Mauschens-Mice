@@ -92,7 +92,7 @@ scope: project
 project_slug: dragonflight
 task_type: review
 tags: [threat-model, severity, deferral, review-process]
-trigger: Slice 1's threat model is a single-player desktop game where today only the bundled trusted map is loaded; the Wave-4 review filed M1 (loader DoS) and L1–L3 with severity reasoning that referenced this threat model explicitly, and the user accepted the deferral of M1, L2, L3 to a later slice without dispute because the deferral rationale survived a re-read.
+trigger: Slice 1's threat model is a single-player desktop game where today only the bundled trusted map is loaded; the Wave-4 review filed M1 (loader DoS) and L1-L3 with severity reasoning that referenced this threat model explicitly, and the user accepted the deferral of M1, L2, L3 to a later slice without dispute because the deferral rationale survived a re-read.
 evidence: Wave-4 security report's M1 finding explicitly tied severity to "not exploitable today (the only map we open is the bundled trusted one), but should be hardened before any feature that lets users open arbitrary or shared maps"; the user's revision round accepted L1 for fix and deferred M1/L2/L3 without challenging the severity calls.
 observed_count: 1
 lesson: In every Dragonflight security finding, anchor the severity sentence to the project's threat-model attributes (single-player desktop, only the bundled trusted map is loaded today, no save/load, no network) so deferral decisions remain defensible when the threat model changes.
